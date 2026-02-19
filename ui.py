@@ -1,3 +1,5 @@
+"""UI for the RAG pipeline"""
+
 import streamlit as st
 import requests
 
@@ -9,5 +11,5 @@ query = st.text_input("Ask me something.")
 
 if st.button("submit") and query:
     with st.spinner("Thinking..."):
-        res = requests.post(BACKEND_URL, json={"Question": query})
+        res = requests.post(BACKEND_URL, json={"Question": query}, timeout=30)
         st.markdown(res.json()["response"])

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from rag_application import run_rag
+from pipeline import run_rag
 
 app = FastAPI()
 
@@ -13,3 +13,6 @@ class Query(BaseModel):
 def ask(q: Query):
     answer = run_rag(q.Question)
     return {"response": answer}
+
+
+# run with `uvicorn server:app --reload --port 11435`

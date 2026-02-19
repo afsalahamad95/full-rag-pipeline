@@ -1,18 +1,22 @@
+"""Implementation of the RAG pipeline phases - ingestion/query processing/generation"""
+
+import os
 from dotenv import load_dotenv
 from langchain_community.document_loaders import (
     TextLoader,
     DirectoryLoader,
 )
 from langchain_huggingface import HuggingFaceEmbeddings
-import os
 from langchain_chroma import Chroma
 from groq import Groq
 
 
 def run_rag(query: str):
+    """Main function to run the RAG pipeline"""
     load_dotenv()
-    groqAPIKEY = os.getenv("GROQ_API_KEY")
+    groq_api_key = os.getenv("GROQ_API_KEY")
 
+    # ingestion phase
     kb_dir_path = "/Users/afsalahamada/Downloads/Data_as_Matrix/Text Files"
     dir_loader = DirectoryLoader(
         kb_dir_path,
@@ -45,8 +49,7 @@ def run_rag(query: str):
         search_kwargs={"k": 1, "fetch_k": 2, "lambda_mult": 0.5},
     )
 
-    """Query Processing Phase"""
-
+    # Query Processing Phase
     # user_query = input("Ask me anything, I'll answer if I know something about it.")
     results = retriever.invoke(query)
 
@@ -56,11 +59,8 @@ def run_rag(query: str):
         context += res.page_content
         context += "\n---\n"
 
-    """Generation Phase"""
-
-    apikey = os.getenv("GROQ_API_KEY")
-    client = Groq(api_key=apikey)
-
+    # Generation Phase - Prompt engineering + context
+    client = Groq(api_key=groq_api_key)
     chat_completion = client.chat.completions.create(
         messages=[
             {
@@ -71,7 +71,7 @@ def run_rag(query: str):
             {"role": "user", "content": context},
             {"role": "user", "content": query},
         ],
-        model="groq/compound",
+        model="groq/compound",  # free model from Groq, but with limited capabilities
         temperature=0.5,
         top_p=1,
     )
