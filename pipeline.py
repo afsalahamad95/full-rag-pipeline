@@ -9,6 +9,7 @@ from langchain_community.document_loaders import (
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from groq import Groq
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 def run_rag(query: str):
@@ -35,7 +36,9 @@ def run_rag(query: str):
 
     # embedding the documents to store them in our vector DB
     vector_store = Chroma(collection_name="rag", embedding_function=embeddings)
-    vector_store.add_documents(documents=docs)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=200)
+    chunks = splitter.split_documents(docs)
+    vector_store.add_documents(documents=chunks)
 
     results = vector_store.similarity_search(
         query="what are the traits of a good corpus?", k=1

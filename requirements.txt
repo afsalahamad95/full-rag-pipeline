@@ -6,3 +6,4 @@ groq
 langchain_huggingface
 streamlit
 fastapi
+langchain_text_splitters
